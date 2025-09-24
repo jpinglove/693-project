@@ -11,7 +11,7 @@
 		<!-- 商品列表 -->
 		<view v-else-if="products.length > 0" class="product-list">
 			<view class="product-item" v-for="product in products" :key="product._id" @click="goToDetail(product._id)">
-				<image class="product-image" :src="product.imageBase64 ? 'data:image/png;base64,' + product.imageBase64 : product.imageUrl"></image>
+				<image class="product-image" :src="getProductImageUrl(product._id)"></image>
 				<view class="product-info">
 					<text class="product-title">{{ product.title }}</text>
 					<text class="product-price">¥{{ product.price }}</text>
@@ -63,7 +63,11 @@
 				uni.navigateTo({
 					url: `/pages/detail/detail?id=${id}`
 				});
-			}
+			},
+			getProductImageUrl(id) {
+				// 拼接出完整的图片请求 URL
+				return `${BASE_URL}/products/${id}/image`;
+			},
 		}
 	}
 </script>

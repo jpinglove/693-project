@@ -1,6 +1,6 @@
 import store from '../store'
 
-// 在这里配置你的后端API地址
+// 配置后端API地址
 // 开发环境可以指向本地, 生产环境指向 Railway 部署的地址
 const BASE_URL = process.env.NODE_ENV === 'development' 
     ? 'http://192.168.200.138:8080/api' 
@@ -14,7 +14,6 @@ const request = (options) => {
             data: options.data || {},
             header: {
                 ...options.header,
-                // 如果有token, 自动附带在header中
                 'Authorization': `Bearer ${store.state.token}`
             },
             success: (res) => {
@@ -33,4 +32,5 @@ const request = (options) => {
     });
 };
 
+// 默认导出 request 函数，但 BASE_URL 也可以被具名导入
 export default request;

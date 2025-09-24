@@ -6,10 +6,11 @@ const ProductSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: { type: String, required: true },
   
-  // imageUrl 不再是必须的，但要有 trim: true 来去除前后空格
-  imageUrl: { type: String, trim: true },
-  // 新增 imageBase64 字段，用于存储图片的 Base64 编码
-  imageBase64: { type: String },
+  // 新增：用于存储图片的对象
+  image: {
+    data: Buffer, // 用于存储图片的二进制数据
+    contentType: String // 用于存储图片的MIME类型, e.g., 'image/png'
+  },
 
   owner: {
     type: mongoose.Schema.Types.ObjectId,

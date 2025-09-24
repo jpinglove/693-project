@@ -1,6 +1,6 @@
 <template>
 	<view class="container" v-if="product">
-		<image class="product-image-detail" :src="product.imageBase64 ? 'data:image/png;base64,' + product.imageBase64 : product.imageUrl" mode="widthFix"></image>
+		<image class="product-image-detail" :src="getProductImageUrl(productId)" mode="widthFix"></image>
 		<view class="product-card">
 			<text class="price">¥{{ product.price }}</text>
 			<text class="title">{{ product.title }}</text>
@@ -100,7 +100,11 @@
 				} catch (error) {
 					uni.showToast({ title: '操作失败', icon: 'none' });
 				}
-			}
+			},
+			getProductImageUrl(id) {
+				// 拼接出完整的图片请求 URL
+				return `${BASE_URL}/products/${id}/image`;
+			},
 		}
 	};
 </script>
