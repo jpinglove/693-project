@@ -1,15 +1,16 @@
-
 const { verifyToken } = require('../middleware/authJwt');
 const Product = require('../models/product.model');
 const User = require('../models/user.model');
 
 module.exports = function(app) {
+  // ... (获取所有商品和获取单个商品详情的路由保持不变) ...
+
   // 获取所有商品 (可带分类和搜索)
   app.get('/api/products', async (req, res) => {
     const { category, search } = req.query;
     let query = {};
     if (category) query.category = category;
-    if (search) query.title = { $regex: search, $options: 'i' }; // 模糊搜索
+    if (search) query.title = { $regex: search, $options: 'i' };
 
     try {
       const products = await Product.find(query).populate('owner', 'nickname').sort({ createdAt: -1 });
@@ -29,8 +30,15 @@ module.exports = function(app) {
     }
   });
 
-  // 发布新商品 (需要登录)
+
+  // 发布新商品 (需要登录) 
   app.post('/api/products', [verifyToken], async (req, res) => {
+    // 新增：验证 imageUrl 和 imageBase64 至少存在一个
+    const { imageUrl, imageBase64 } = req.body;
+    if ((!imageUrl || imageUrl.trim() === '') && (!imageBase64 || imageBase64.trim() === '')) {
+      return res.status(400).send({ message: 'Validation failed: Please provide either an Image URL or a Base64 image string.' });
+    }
+
     try {
       const product = new Product({ ...req.body, owner: req.userId });
       await product.save();
@@ -40,6 +48,7 @@ module.exports = function(app) {
     }
   });
 
+  // ... (添加留言、收藏、评价用户的路由保持不变) ...
   // 添加留言 (需要登录)
   app.post('/api/products/:id/comments', [verifyToken], async (req, res) => {
     try {
