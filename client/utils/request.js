@@ -2,7 +2,7 @@ import store from '../store'
 
 // 配置后端API地址
 // 开发环境可以指向本地, 生产环境指向 Railway 部署的地址
-const BASE_URL = process.env.NODE_ENV === 'development' 
+export const BASE_URL = process.env.NODE_ENV === 'development' 
     ? 'http://192.168.200.138:8080/api' 
     : 'https://your-backend-service.up.railway.app/api';
 

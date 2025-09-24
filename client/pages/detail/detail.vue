@@ -29,6 +29,7 @@
 
 <script>
 	import request from '@/utils/request.js';
+	import { BASE_URL } from '@/utils/request.js'; // 导入 BASE_URL
 	import { mapState } from 'vuex';
 
 	export default {
