@@ -178,7 +178,7 @@
 </script>
 
 <style>
-  /* 【重要修改】: 全新的表单样式 */
+  /* 表单样式 */
   .container {
     padding: 20rpx;
   }

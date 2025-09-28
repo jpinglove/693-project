@@ -66,7 +66,7 @@
 			console.log('Home page needs refresh! Fetching data...');
 			// 执行刷新
 			this.fetchProducts();
-			// 【重要】: 刷新后立刻重置标志位，避免重复刷新
+			// 刷新后立刻重置标志位，避免重复刷新
 			this.SET_HOME_NEEDS_REFRESH(false);
 		}
     },
