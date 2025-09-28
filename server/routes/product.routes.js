@@ -180,7 +180,7 @@ module.exports = function (app) {
       res.status(500).send({ message: error.message });
     }
   });
-  // 更新商品信息接口
+  // 更新商品信息业务函数
   const updateProductLogic = async (req, res) => {
     try {
       const product = await Product.findById(req.params.id);
@@ -211,7 +211,7 @@ module.exports = function (app) {
     }
   };
 
-  // 更新商品信息接口 (用于不带图片的更新)
+  // 更新商品信息接口
   app.put(
     "/api/products/:id",
     [verifyToken, upload.single("imageFile")],
