@@ -23,8 +23,9 @@
 </template>
 
 <script>
-	// 注意：我们需要从 request.js 中获取 API 的基础 URL
+	// 从 request.js 中获取 API 的基础 URL
 	import { BASE_URL } from '@/utils/request.js';
+	import { mapMutations } from 'vuex';
 
 	export default {
 		data() {
@@ -47,6 +48,7 @@
 			}
 		},
 		methods: {
+			...mapMutations(['SET_HOME_NEEDS_REFRESH']),
 			chooseImage() {
 				uni.chooseImage({
 					count: 1, // 只选择一张
@@ -84,6 +86,7 @@
 					formData: this.formData, // 其他表单数据
 					success: (uploadFileRes) => {
 						uni.showToast({ title: '发布成功！' });
+						this.SET_HOME_NEEDS_REFRESH(true);
 						// 清空表单
 						this.formData = { title: '', description: '', price: null, category: '' };
 						this.imagePreview = '';

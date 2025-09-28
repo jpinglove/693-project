@@ -1,56 +1,71 @@
 {
-	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "校园二手市场"
-			}
-		},
-		{
-			"path": "pages/detail/detail",
-			"style": {
-				"navigationBarTitleText": "商品详情"
-			}
-		},
-		{
-			"path": "pages/publish/publish",
-			"style": {
-				"navigationBarTitleText": "发布商品"
-			}
-		},
-		{
-			"path": "pages/my/my",
-			"style": {
-				"navigationBarTitleText": "我的"
-			}
-		}
-	],
-	"globalStyle": {
-		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "校园二手",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
-	},
-	"tabBar": {
-		"color": "#7A7E83",
-		"selectedColor": "#007AFF",
-		"borderStyle": "black",
-		"backgroundColor": "#ffffff",
-		"list": [{
-			"pagePath": "pages/index/index",
-			"iconPath": "static/home.png",
-			"selectedIconPath": "static/home_active.png",
-			"text": "首页"
-		}, {
-			"pagePath": "pages/publish/publish",
-			"iconPath": "static/publish.png",
-			"selectedIconPath": "static/publish_active.png",
-			"text": "发布"
-		}, {
-			"pagePath": "pages/my/my",
-			"iconPath": "static/my.png",
-			"selectedIconPath": "static/my_active.png",
-			"text": "我的"
-		}]
-	}
+    "pages": [//pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+        {
+            "path": "pages/index/index",
+            "style": {
+                "navigationBarTitleText": "校园二手市场",
+                "enablePullDownRefresh": true
+            }
+        }, {
+            "path": "pages/detail/detail",
+            "style": {
+                "navigationBarTitleText": "商品详情"
+            }
+        }, {
+            "path": "pages/publish/publish",
+            "style": {
+                "navigationBarTitleText": "发布商品"
+            }
+        }, {
+            "path": "pages/my/my",
+            "style": {
+                "navigationBarTitleText": "我的"
+            }
+        }, {
+            "path": "pages/favorites/favorites",
+            "style": {
+                "navigationBarTitleText": "我的收藏"
+            }
+        }, {
+            "path": "pages/publications/publications",
+            "style": {
+                "navigationBarTitleText": "我的发布"
+            }
+        }, {
+            "path": "pages/edit/edit",
+            "style": {
+                "navigationBarTitleText": "编辑商品"
+            }
+        }
+    ],
+    // globalStyle 和 tabBar
+    "globalStyle": {
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "校园二手",
+        "navigationBarBackgroundColor": "#F8F8F8",
+        "backgroundColor": "#F8F8F8"
+    },
+    "tabBar": {
+        "color": "#7A7E83",
+        "selectedColor": "#007AFF",
+        "borderStyle": "black",
+        "backgroundColor": "#ffffff",
+        "list": [{
+                "pagePath": "pages/index/index",
+                "iconPath": "static/home.png",
+                "selectedIconPath": "static/home_active.png",
+                "text": "首页"
+            }, {
+                "pagePath": "pages/publish/publish",
+                "iconPath": "static/publish.png",
+                "selectedIconPath": "static/publish_active.png",
+                "text": "发布"
+            }, {
+                "pagePath": "pages/my/my",
+                "iconPath": "static/my.png",
+                "selectedIconPath": "static/my_active.png",
+                "text": "我的"
+            }
+        ]
+    }
 }

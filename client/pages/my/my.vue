@@ -1,8 +1,24 @@
 <template>
 	<view class="container">
 		<!-- 用户已登录 -->
-		<view v-if="token" class="profile-card">
-			<text class="welcome-text">欢迎, {{ userInfo.nickname }}</text>
+		<view v-if="token">
+			<view class="profile-card">
+				<text class="welcome-text">欢迎, {{ userInfo.nickname }}</text>
+			</view>
+
+			<view class="menu-list">
+				<view class="menu-item" @click="goToList('publications')">
+					<image class="menu-icon" src="/static/publish_list.png"></image>
+					<text class="menu-text">我的发布</text>
+					<text class="arrow"> > </text>
+				</view>
+				<view class="menu-item" @click="goToList('favorites')">
+					<image class="menu-icon" src="/static/favorite.png"></image>
+					<text class="menu-text">我的收藏</text>
+					<text class="arrow"> > </text>
+				</view>
+			</view>
+			
 			<button class="logout-btn" @click="logout">退出登录</button>
 		</view>
 
@@ -31,6 +47,7 @@
 <script>
 	import request from '@/utils/request.js'
 	import { mapState, mapMutations } from 'vuex'
+	import { BASE_URL } from '@/utils/request.js';
 
 	export default {
 		data() {
@@ -52,6 +69,11 @@
 		},
 		methods: {
 			...mapMutations(['LOGIN', 'LOGOUT']),
+			goToList(page) {
+				uni.navigateTo({
+					url: `/pages/${page}/${page}`
+				});
+			},
 			async handleLogin() {
 				try {
 					const res = await request({
@@ -87,10 +109,17 @@
 </script>
 
 <style>
+.container { padding-bottom: 40rpx; }
 .profile-card, .form-card { background: #fff; padding: 30rpx; border-radius: 10rpx; text-align: center; }
 .welcome-text { font-size: 36rpx; display: block; margin-bottom: 40rpx; }
-.logout-btn { background-color: #f44336; color: #fff; }
+.logout-btn { background-color: #f44336; color: #fff; margin: 40rpx 20rpx 0; }
 .form-input { border: 1px solid #eee; padding: 15rpx; margin-bottom: 20rpx; text-align: left; }
 .submit-btn { background-color: #007AFF; color: #fff; margin-bottom: 20rpx; }
 .switch-text { color: #007AFF; font-size: 28rpx; }
+.menu-list { margin: 20rpx; background: #fff; border-radius: 10rpx; }
+.menu-item { display: flex; align-items: center; padding: 25rpx; border-bottom: 1px solid #eee; }
+.menu-item:last-child { border-bottom: none; }
+.menu-icon { width: 40rpx; height: 40rpx; margin-right: 20rpx; }
+.menu-text { flex: 1; }
+.arrow { color: #ccc; }
 </style>
