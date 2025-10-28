@@ -1,42 +1,75 @@
 <template>
   <view class="content">
     <!-- 搜索框 -->
-    <input
-      class="search-bar"
-      @confirm="onSearch"
-      placeholder="搜索商品标题"
-      v-model="searchValue"
-    />
-
+		<view class="search-bar-container">
+			<input
+				class="search-bar"
+				@confirm="onSearch"
+				placeholder="搜索商品标题"
+				v-model="filters.search"
+			/>
+		</view>
+		
+		<!-- 排序与筛选栏 -->
+		<view class="filter-bar">
+			<picker class="sort-picker" @change="onSortChange" :value="sortIndex" :range="sortOptions" range-key="text">
+				<view class="picker-content">
+					<text>{{ currentSortText }}</text>
+					<text class="arrow-down">▼</text>
+				</view>
+			</picker>
+			<view class="filter-btn" @click="openFilterDrawer">
+				<image class="filter-icon" src="/static/filter.png"></image>
+				<text>筛选</text>
+			</view>
+		</view>
+		
     <!-- 加载中提示 -->
-    <view v-if="isFirstLoad" class="empty-container">
+    <view v-if="loading" class="empty-container">
       <text>正在加载中...</text>
     </view>
 
     <!-- 商品列表 -->
-    <view v-else-if="products.length > 0" class="product-list">
-      <view
-        class="product-item"
-        v-for="product in products"
-        :key="product._id"
-        @click="goToDetail(product._id)"
-      >
-        <image
-          class="product-image"
-          :src="getProductImageUrl(product._id)"
-        ></image>
-        <view class="product-info">
-          <text class="product-title">{{ product.title }}</text>
-          <text class="product-price">¥{{ product.price }}</text>
-        </view>
-      </view>
-    </view>
+	<!-- 统一使用 <product-list> 组件来渲染列表 -->
+	<product-list v-else-if="products.length > 0" :products="products"></product-list>
 
     <!-- 空状态提示 -->
     <view v-else class="empty-container">
       <image class="empty-image" src="/static/empty.png"></image>
       <text class="empty-text">市场空空如也，快来发布你的第一件商品吧！</text>
     </view>
+	
+	<!-- 筛选抽屉组件 -->
+	<uni-drawer ref="filterDrawer" mode="right" :width="320">
+		<view class="filter-drawer-content">
+			<text class="drawer-title">筛选条件</text>
+			
+			<view class="form-group">
+				<text class="form-label">校区</text>
+				<input class="form-input" v-model="tempFilters.campus" placeholder="如: 主校区, 南校区" />
+			</view>
+			<view class="form-group">
+				<text class="form-label">新旧程度</text>
+				<picker class="condition-picker" @change="onConditionChange" :value="conditionIndex" :range="conditionOptions">
+					<view class="form-input picker-input">{{ tempFilters.condition || '请选择' }}</view>
+				</picker>
+			</view>
+			<view class="form-group">
+				<text class="form-label">价格区间</text>
+				<view class="price-range">
+					<input class="form-input" type="number" v-model="tempFilters.priceMin" placeholder="最低价" />
+					<text class="price-separator">-</text>
+					<input class="form-input" type="number" v-model="tempFilters.priceMax" placeholder="最高价" />
+				</view>
+			</view>
+
+			<view class="drawer-buttons">
+				<button class="drawer-btn reset-btn" size="mini" @click="resetFilters">重置</button>
+				<button class="drawer-btn confirm-btn" size="mini" @click="applyFilters">确认</button>
+			</view>
+		</view>
+	</uni-drawer>
+			
   </view>
 </template>
 
@@ -44,18 +77,50 @@
   import request from "@/utils/request.js";
   import { BASE_URL } from "@/utils/request.js"; // 导入 BASE_URL
   import { mapState, mapMutations } from 'vuex';
+  // import uniDrawer from '@/node_modules/@dcloudio/uni-ui/lib/uni-drawer/uni-drawer.vue';
 
   export default {
+	  // 安装 uni-ui
+	// npm i @dcloudio/uni-ui
+	  // 在 components 选项中注册它
+	// components: {
+	// 	uniDrawer
+	// },
     data() {
       return {
         products: [],
-        searchValue: "",
-        isFirstLoad: true,
+        loading: true,
+		// -- 排序和筛选数据 --
+		filters: {
+			search: "",
+			campus: "",
+			condition: "",
+			priceMin: "",
+			priceMax: "",
+		},
+		// 临时存储抽屉中的筛选条件，点击确认再生效
+		tempFilters: {}, 
+		sortBy: 'createdAt',
+		sortOrder: 'desc',
+		sortIndex: 0,
+		sortOptions: [
+			{ value: { sortBy: 'createdAt', sortOrder: 'desc' }, text: '最新发布' },
+			{ value: { sortBy: 'price', sortOrder: 'asc' }, text: '价格最低' },
+			{ value: { sortBy: 'price', sortOrder: 'desc' }, text: '价格最高' },
+			{ value: { sortBy: 'viewCount', sortOrder: 'desc' }, text: '热度最高' }
+		],
+		conditionOptions: ['全新', '九成新', '八成新', '轻微瑕疵'],
+		conditionIndex: -1 // 初始不选中任何项
+
       };
     },
 	computed: {
 		// 将 Vuex 的 state 映射到本组件的 computed 属性
-		...mapState(['homeNeedsRefresh'])
+		...mapState(['homeNeedsRefresh']),
+		// 计算属性，显示当前排序文本
+		currentSortText() {
+			return this.sortOptions[this.sortIndex].text;
+		}
 	},
     onLoad() {
       this.fetchProducts();
@@ -63,7 +128,6 @@
     // onShow 会在每次页面显示时触发，比 onLoad 更适合刷新列表
     onShow() {
 	  if (this.homeNeedsRefresh) {
-			console.log('Home page needs refresh! Fetching data...');
 			// 执行刷新
 			this.fetchProducts();
 			// 刷新后立刻重置标志位，避免重复刷新
@@ -80,46 +144,103 @@
     },
     methods: {
 		...mapMutations(['SET_HOME_NEEDS_REFRESH']),
-      async fetchProducts(search = "") {
-        if (this.isFirstLoad) {
+      async fetchProducts() {
+        if (this.loading) {
         } else {
-          // 对于自动刷新和下拉刷新，可以给出更友好的提示，比如导航栏加载动画
+          // 动画
           uni.showNavigationBarLoading();
         }
-        try {
-          const data = await request({
-            url: `/products?search=${search}`,
-            method: "GET",
-          });
-          this.products = data;
-          console.log(this.products);
+		
+		// filters 和 sort 对象转换成 URL 查询字符串
+		const params = { 
+			...this.filters,
+			sortBy: this.sortBy,
+			sortOrder: this.sortOrder
+		};
+		
+		const queryString = Object.keys(params)
+			.filter(key => params[key] !== '' && params[key] !== null && params[key] !== undefined)
+			.map(key => `${key}=${encodeURIComponent(params[key])}`)
+			.join('&');
+		// name=aa&age=22&studentid=123
+		console.log(queryString);
+
+		try {
+			const data = await request({ url: `/products?${queryString}` });
+			this.products = data;
         } catch (error) {
           console.error(error);
           this.products = [];
         } finally {
-          this.isFirstLoad = false; // 加载结束
+          this.loading = false; // 加载结束
           uni.hideNavigationBarLoading(); // 隐藏导航栏加载动画
         }
       },
       onSearch(event) {
-        this.fetchProducts(event.detail.value);
+        this.fetchProducts();
+        // this.fetchProducts(event.detail.value);
       },
-      goToDetail(id) {
-        uni.navigateTo({
-          url: `/pages/detail/detail?id=${id}`,
-        });
-      },
-      getProductImageUrl(id) {
-        // 拼接出完整的图片请求 URL
-        return `${BASE_URL}/products/${id}/image?t=${new Date().getTime()}`;
-		//return `${BASE_URL}/products/${id}/image`;
-      },
+	// 排序和筛选相关的方法
+	onSortChange(e) {
+		const index = Number(e.detail.value);
+		const selectedOption = this.sortOptions[index];
+		console.log(JSON.stringify(this.sortOptions[index]))
+		console.log(JSON.stringify(selectedOption))
+		console.log(JSON.stringify(selectedOption['value']))
+		
+		const value = selectedOption['value']
+		
+		console.log('index =', e.detail.value)
+		if (selectedOption) {
+			console.log(JSON.stringify(value))
+			this.sortIndex = index;
+			this.sortBy = value.sortBy;
+			this.sortOrder = value.sortOrder;
+			
+			console.log('sortIndex =', index)
+			console.log('sortBy =', value.sortBy)
+			console.log('sortOrder =', value.sortOrder)
+			
+			this.fetchProducts();
+		}
+	},
+
+	openFilterDrawer() {
+		// 打开抽屉时，将当前生效的筛选条件传给变量
+		this.tempFilters = JSON.parse(JSON.stringify(this.filters));
+		// 同步picker的选中项
+		this.conditionIndex = this.conditionOptions.indexOf(this.tempFilters.condition);
+		this.$refs.filterDrawer.open();
+	},
+	
+	onConditionChange(e) {
+		this.conditionIndex = e.detail.value;
+		this.tempFilters.condition = this.conditionOptions[this.conditionIndex];
+	},
+
+	applyFilters() {
+		// 点击确认时，将临时筛选条件应用到正式的筛选条件，并触发数据请求
+		this.filters = JSON.parse(JSON.stringify(this.tempFilters));
+		this.fetchProducts();
+		this.$refs.filterDrawer.close();
+	},
+
+	resetFilters() {
+		// 重置临时筛选条件
+		this.tempFilters = {
+			search: this.filters.search, // 保留搜索框的内容
+			campus: "",
+			condition: "",
+			priceMin: "",
+			priceMax: "",
+		};
+		this.conditionIndex = -1;
+	},
     },
   };
 </script>
 
 <style>
-  /* 简单样式 */
   .search-bar {
     border: 1px solid #ccc;
     padding: 10rpx;
@@ -167,4 +288,82 @@
     height: 200rpx;
     margin-bottom: 20rpx;
   }
+  
+  /* 排序筛选栏样式 */
+  	.filter-bar {
+  		display: flex;
+  		justify-content: space-around;
+  		align-items: center;
+  		padding: 15rpx;
+  		background: #fff;
+  		border-bottom: 1px solid #f0f0f0;
+  		font-size: 28rpx;
+  	}
+  	.sort-picker .picker-content {
+  		display: flex;
+  		align-items: center;
+  	}
+  	.arrow-down {
+  		margin-left: 8rpx;
+  		font-size: 20rpx;
+  		color: #999;
+  	}
+  	.filter-btn {
+  		display: flex;
+  		align-items: center;
+  		color: #007AFF;
+  	}
+  	.filter-icon {
+  		width: 32rpx;
+  		height: 32rpx;
+  		margin-right: 8rpx;
+  	}
+  	
+  	/* 抽屉样式 */
+  	.filter-drawer-content {
+  		padding: 30rpx;
+  	}
+  	.drawer-title {
+  		font-size: 32rpx;
+  		font-weight: bold;
+  		margin-bottom: 40rpx;
+  		display: block;
+  	}
+  	.form-group {
+  		margin-bottom: 30rpx;
+  	}
+  	.form-label {
+  		font-size: 28rpx;
+  		color: #666;
+  		margin-bottom: 10rpx;
+  		display: block;
+  	}
+  	.form-input {
+  		border: 1px solid #eee;
+  		padding: 15rpx;
+  		border-radius: 5rpx;
+  		font-size: 28rpx;
+  	}
+  	.price-range {
+  		display: flex;
+  		align-items: center;
+  	}
+  	.price-separator {
+  		margin: 0 15rpx;
+  		color: #999;
+  	}
+  	.picker-input {
+  		color: #333; /* 确保picker有正常的文字颜色 */
+  	}
+  	.drawer-buttons {
+  		display: flex;
+  		margin-top: 50rpx;
+  	}
+  	.drawer-btn {
+  		flex: 1;
+  	}
+  	.reset-btn {
+  		margin-right: 15rpx;
+  	}
+  
 </style>

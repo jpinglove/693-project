@@ -1,9 +1,10 @@
 import store from '../store'
 
 // 配置后端API地址
-// 开发环境可以指向本地, 生产环境指向 Railway 部署的地址
+// 开发环境可以指向本地, 生产环境指向 vercel 部署的地址
+// 'http://192.168.200.138:8080/api'
 export const BASE_URL = process.env.NODE_ENV === 'development' 
-    ? 'http://192.168.200.138:8080/api' 
+    ? 'http://192.168.200.156:8080/api' 
     : 'https://server-693-api.vercel.app/api';
 
 const request = (options) => {

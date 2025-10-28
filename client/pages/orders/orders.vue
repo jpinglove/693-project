@@ -1,33 +1,32 @@
 <template>
 	<view>
-		<!-- 列表组件，传入不同的数据和标题 -->
 		<view class="header-bar">
-			<text class="page-title">我的收藏</text>
+			<text class="page-title">我的订单</text>
 			<button class="export-btn" size="mini" @click="exportData">导出CSV</button>
 		</view>
-		<product-list :products="products" title="我的收藏"></product-list>
+		<product-list :products="orderProducts" title="我的订单"></product-list>
 	</view>
 </template>
+
 <script>
 	import request from '@/utils/request.js';
-	// import productList from '@/components/product-list.vue'; // 引入通用列表组件
 	import { downloadFile } from '@/utils/downloader.js';
-	
 	export default {
-		// components: { productList },
 		data() {
-			return { products: [] };
+			return { orderProducts: [] };
 		},
-		onShow() { this.fetchFavorites(); },
+		onShow() { this.fetchOrders(); },
 		methods: {
-			async fetchFavorites() {
+			async fetchOrders() {
 				try {
-					this.products = await request({ url: '/user/favorites' });
+					const orders = await request({ url: '/user/orders' });
+					// API返回的是订单列表，需要提取其中的商品信息
+					this.orderProducts = orders.map(order => order.product);
 				} catch (e) { uni.showToast({ title: '加载失败', icon: 'none' }); }
 			},
 			// 导出方法
 			exportData() {
-				downloadFile('/user/export/favorites', 'my_favorites.csv');
+				downloadFile('/user/export/orders', 'my_orders.csv');
 			}
 		}
 	}
@@ -39,4 +38,5 @@
 .page-title { font-size: 32rpx; font-weight: bold; }
 .export-btn { background-color: #19be6b; color: white; }
 </style>
+
 

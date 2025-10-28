@@ -1,4 +1,10 @@
 {
+	"easycom": {
+		"autoscan": true,
+		"productList": "@/components/product-list/product-list.vue",
+		"uniDrawer": "@/components/uni-drawer/uni-drawer.vue",
+		"echarts": "@/components/echarts-uniapp/echarts-uniapp.vue"
+	},
     "pages": [//pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
         {
             "path": "pages/index/index",
@@ -35,6 +41,32 @@
             "path": "pages/edit/edit",
             "style": {
                 "navigationBarTitleText": "编辑商品"
+            }
+        }, {
+            "path": "pages/publications/publications",
+            "style": {
+                "navigationBarTitleText": "我的发布"
+            }
+        }, {
+            "path": "pages/edit/edit",
+            "style": {
+                "navigationBarTitleText": "编辑商品"
+            }
+        },
+        {
+            "path": "pages/orders/orders",
+            "style": {
+                "navigationBarTitleText": "我的订单"
+            }
+        }, {
+            "path": "pages/view-history/view-history",
+            "style": {
+                "navigationBarTitleText": "浏览记录"
+            }
+        }, {
+            "path": "pages/admin/admin",
+            "style": {
+                "navigationBarTitleText": "管理后台"
             }
         }
     ],

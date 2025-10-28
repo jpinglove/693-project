@@ -38,6 +38,19 @@
           placeholder="如: 图书、电子产品"
         />
       </view>
+	  
+	  <view class="form-group">
+	      <text class="form-label">校区</text>
+	      <picker @change="onCampusChange" :value="campusIndex" :range="campusOptions">
+	          <view class="form-input">{{ campusOptions[campusIndex] }}</view>
+	      </picker>
+	  </view>
+	  <view class="form-group">
+	      <text class="form-label">新旧程度</text>
+	      <picker @change="onConditionChange" :value="conditionIndex" :range="conditionOptions">
+	          <view class="form-input">{{ conditionOptions[conditionIndex] }}</view>
+	      </picker>
+	  </view>
 
       <view class="form-group">
         <text class="form-label">商品图片</text>
@@ -78,9 +91,15 @@
           description: "",
           price: null,
           category: "",
+		  campus: '',
+		  condition: ''
         },
         imageTempPath: "",
         imagePreview: "",
+		campusOptions: ['主校区', '南校区', '北校区'],
+		campusIndex: 0,
+		conditionOptions: ['全新', '九成新', '八成新', '轻微瑕疵'],
+		conditionIndex: 0
       };
     },
     onLoad(options) {
@@ -101,7 +120,16 @@
           this.formData.description = data.description;
           this.formData.price = data.price;
           this.formData.category = data.category;
-          this.imagePreview = `${BASE_URL}/products/${
+		  this.formData.campus = data.campus || ''; // 默认值
+		  this.formData.condition = data.condition || ''; // 默认值
+          
+		this.campusIndex = this.campusOptions.indexOf(this.formData.campus);
+		if (this.campusIndex === -1) this.campusIndex = 0; // 默认选第一个
+
+		this.conditionIndex = this.conditionOptions.indexOf(this.formData.condition);
+		if (this.conditionIndex === -1) this.conditionIndex = 0; // 默认选第一个
+		  
+		  this.imagePreview = `${BASE_URL}/products/${
             this.productId
           }/image?t=${new Date().getTime()}`;
           this.loading = false;
@@ -109,6 +137,14 @@
           uni.showToast({ title: "加载商品信息失败", icon: "none" });
         }
       },
+	  onCampusChange(e) {
+		  this.campusIndex = e.detail.value;
+		  this.formData.campus = this.campusOptions[this.campusIndex];
+	  },
+	  onConditionChange(e) {
+		this.conditionIndex = e.detail.value;
+		this.formData.condition = this.conditionOptions[this.conditionIndex];
+	},
       chooseImage() {
         uni.chooseImage({
           count: 1,
@@ -127,6 +163,9 @@
       },
       handleSave() {
         this.saving = true;
+		this.formData.campus = this.campusOptions[this.campusIndex];
+		this.formData.condition = this.conditionOptions[this.conditionIndex];
+		
         if (this.imageTempPath) {
           uni.uploadFile({
             url: `${BASE_URL}/products/${this.productId}`,
@@ -192,7 +231,7 @@
   }
   .form-label {
     font-size: 30rpx;
-    color: #007aff; /* 醒目的蓝色 */
+    color: #007aff;
     margin-bottom: 10rpx;
     display: block;
   }

@@ -28,16 +28,21 @@ app.get("/", (req, res) => {
 
 require("./routes/auth.routes")(app);
 require("./routes/product.routes")(app);
+require('./routes/admin.routes')(app); 
 
 // 将 'app.listen' 部分移除，并导出 app
 // Vercel 会处理监听，只需要导出 express 应用实例
 // Vercel 部署专用
 module.exports = app;
 
-/*
+//  发布时第一处修改
+// 发布时把下面的listen注掉
 // Set port, listen for requests
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-*/
+
+// 开发/调试时打开上面的注释, 部署时 注掉启动代码
+
